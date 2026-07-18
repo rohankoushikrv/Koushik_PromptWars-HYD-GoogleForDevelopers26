@@ -67,16 +67,19 @@ http://localhost:3000
 
 ## 🔑 Getting Your API Key
 
-This app requires an OpenAI API key to function:
+This app requires a **Google Generative AI (Gemini) API key** to function:
 
-1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Sign in or create an account
-3. Click "Create new secret key"
-4. Copy your API key
-5. When you first load the app, paste your API key when prompted
-6. Your key is stored **locally only** in your browser (localStorage)
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Select your project (or create a new one)
+5. Copy your API key
+6. When you first load the app, paste your API key when prompted
+7. Your key is stored **locally only** in your browser (localStorage)
 
-**Security Note**: Your API key is never sent anywhere except to OpenAI's servers for processing messages.
+**Security Note**: Your API key is never sent anywhere except to Google's Generative AI API servers for processing messages.
+
+**Cost**: Google's Generative AI API offers a free tier with generous rate limits!
 
 ## 💡 How It Works
 
@@ -118,17 +121,17 @@ The AI Agent implements key CBT concepts:
 
 ✅ **100% Client-Side**: No data sent to our servers
 ✅ **Browser Storage**: Conversations saved locally only
-✅ **API Key Protection**: Direct communication with OpenAI only
+✅ **API Key Protection**: Direct communication with Google only
 ✅ **No Tracking**: No analytics or tracking code
 ✅ **Open Source**: Code is transparent and auditable
 ✅ **Encryption Ready**: Data can be encrypted before storage
 
 ## 📡 API Usage
 
-The app communicates directly with OpenAI's API:
-- Model: GPT-4 (configurable)
+The app communicates directly with Google's Generative AI API:
+- Model: Gemini 1.5 Flash (free tier available)
 - Max tokens: 2,000 per response
-- Cost: As per your OpenAI plan
+- Cost: Free tier available! See pricing at https://ai.google.dev/pricing
 
 ## 🛠️ Development
 
@@ -198,7 +201,7 @@ MIT License - Feel free to use and modify as needed
 
 ## 🙏 Acknowledgments
 
-- Built with OpenAI's GPT-4 API
+- Built with Google's Generative AI (Gemini) API
 - CBT principles from cognitive psychology research
 - Inspired by evidence-based mental health practices
 - Special thanks to the open-source community

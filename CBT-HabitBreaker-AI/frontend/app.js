@@ -1,12 +1,13 @@
 /* ========================================
    CBT Habit Breaker - Frontend Application
    Static Webapp - GitHub Pages Ready
+   Using Google Generative AI (Gemini API)
    ======================================== */
 
 const app = {
-    // OpenAI Configuration
-    openaiApiKey: null,
-    openaiModel: 'gpt-4',
+    // Google Generative AI Configuration
+    googleApiKey: null,
+    geminiModel: 'gemini-1.5-flash',
     
     // Local Configuration
     sessionId: null,
@@ -20,12 +21,15 @@ const app = {
         console.log('🚀 CBT Habit Breaker initialized');
         
         // Check for API key
-        this.openaiApiKey = this.getApiKey();
-        if (!this.openaiApiKey) {
+        this.googleApiKey = this.getApiKey();
+        
+        if (!this.googleApiKey) {
+            console.log('⚠️ No API key found, showing prompt');
             this.showApiKeyPrompt();
             return;
         }
 
+        console.log('✅ API key found, initializing app');
         this.setupEventListeners();
         this.createNewSession();
         this.loadPreviousSession();
@@ -33,47 +37,115 @@ const app = {
 
     getApiKey() {
         // Try to get from localStorage first
-        let key = localStorage.getItem('cbt_openai_api_key');
-        if (key) return key;
-
-        // Try to get from environment variable
-        if (typeof process !== 'undefined' && process.env?.VITE_OPENAI_API_KEY) {
-            return process.env.VITE_OPENAI_API_KEY;
+        const storedKey = localStorage.getItem('cbt_google_api_key');
+        console.log('Looking for API key in localStorage:', storedKey ? '✓ Found' : '✗ Not found');
+        
+        if (storedKey && storedKey.trim()) {
+            return storedKey.trim();
         }
 
+        // Try to get from environment variable
+        if (typeof process !== 'undefined' && process.env?.VITE_GOOGLE_API_KEY) {
+            return process.env.VITE_GOOGLE_API_KEY;
+        }
+
+        console.log('⚠️ No API key available');
         return null;
     },
 
     showApiKeyPrompt() {
         const apiKey = prompt(
-            '🔑 Enter your OpenAI API key to get started:\n\n' +
-            'Get it from: https://platform.openai.com/api-keys\n\n' +
-            'Your key is stored locally and never sent to any server except OpenAI.'
+            '🔑 REQUIRED: Enter your Google Generative AI API key\n\n' +
+            'How to get it:\n' +
+            '1. Go to: https://aistudio.google.com/app/apikey\n' +
+            '2. Sign in with Google (free account)\n' +
+            '3. Click "Create API Key"\n' +
+            '4. Copy your key (starts with AQ.)\n' +
+            '5. Paste it below:\n\n' +
+            'Example: AQ.Ab8RN6Izkgz7sZWa0sh5A...\n\n' +
+            'Key will be stored ONLY in your browser.'
         );
 
-        if (apiKey && apiKey.trim()) {
-            localStorage.setItem('cbt_openai_api_key', apiKey.trim());
-            this.openaiApiKey = apiKey.trim();
-            this.setupEventListeners();
-            this.createNewSession();
-        } else {
-            alert('API key is required to use this application.');
-            document.getElementById('chat-history').innerHTML = `
-                <div class="chat-message bot-message">
-                    <div class="message-content">
-                        <p><strong>API Key Required</strong></p>
-                        <p>To use CBT Habit Breaker, you need to provide an OpenAI API key.</p>
-                        <p><a href="https://platform.openai.com/api-keys" target="_blank">Get your API key here</a></p>
-                        <p>Reload the page after obtaining your key.</p>
-                    </div>
-                </div>
-            `;
+        if (!apiKey || !apiKey.trim()) {
+            this.showNoKeyError();
+            return;
         }
+
+        const trimmedKey = apiKey.trim();
+        
+        // Validate API key format
+        if (!trimmedKey.startsWith('AQ.')) {
+            alert('❌ Invalid Format!\n\n' +
+                'Google API keys start with "AQ."\n\n' +
+                'You entered: ' + trimmedKey.substring(0, 30) + '...\n\n' +
+                'Get the correct key from:\n' +
+                'https://aistudio.google.com/app/apikey');
+            this.showApiKeyPrompt();
+            return;
+        }
+        
+        if (trimmedKey.length < 20) {
+            alert('❌ Key Too Short!\n\n' +
+                'Google API keys are usually 40+ characters.\n\n' +
+                'Make sure you copied the entire key.');
+            this.showApiKeyPrompt();
+            return;
+        }
+        
+        // Save and initialize
+        localStorage.setItem('cbt_google_api_key', trimmedKey);
+        this.googleApiKey = trimmedKey;
+        console.log('✅ API key saved, initializing app');
+        this.setupEventListeners();
+        this.createNewSession();
+        this.loadPreviousSession();
+    },
+
+    showNoKeyError() {
+        const chatHistory = document.getElementById('chat-history');
+        chatHistory.innerHTML = `
+            <div class="chat-message bot-message" style="margin: 20px;">
+                <div class="message-content">
+                    <p style="font-size: 18px; font-weight: bold; color: #e74c3c;">🔑 API Key Required</p>
+                    <p style="margin-top: 15px;">To use CBT Habit Breaker, you need a Google Generative AI API key.</p>
+                    
+                    <h4 style="margin-top: 20px; margin-bottom: 10px;">📋 Quick Setup (2 minutes):</h4>
+                    <ol style="margin-left: 20px; line-height: 1.8;">
+                        <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #4a90e2; text-decoration: underline;">https://aistudio.google.com/app/apikey</a></li>
+                        <li>Sign in with your Google account</li>
+                        <li>Click <strong>"Create API Key"</strong></li>
+                        <li>Select your project (or create new)</li>
+                        <li>Copy the key (starts with <code style="background: rgba(0,0,0,0.1); padding: 2px 6px;">AQ.</code>)</li>
+                        <li>Click the ⚙️ button at the top right</li>
+                        <li>Paste your key</li>
+                    </ol>
+                    
+                    <p style="margin-top: 20px; background: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 6px; border-left: 4px solid #2ecc71;">
+                        <strong>✨ Good news:</strong> Google's Generative AI API is <strong>free to use!</strong>
+                    </p>
+                    
+                    <p style="margin-top: 20px; font-size: 13px; opacity: 0.8;">
+                        Your API key stays in your browser only. Never shared with anyone.
+                    </p>
+                    
+                    <p style="margin-top: 15px;">
+                        <button onclick="location.reload()" style="background: #4a90e2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                            🔄 Refresh & Try Again
+                        </button>
+                    </p>
+                </div>
+            </div>
+        `;
     },
 
     setupEventListeners() {
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
+
+        if (!messageInput || !sendBtn) {
+            console.error('❌ Chat elements not found in DOM');
+            return;
+        }
 
         // Send on button click
         sendBtn.addEventListener('click', () => this.sendMessage());
@@ -90,6 +162,8 @@ const app = {
             messageInput.style.height = 'auto';
             messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
         });
+
+        console.log('✅ Event listeners attached');
     },
 
     createNewSession() {
@@ -142,8 +216,12 @@ const app = {
         const message = input.value.trim();
 
         if (!message) return;
-        if (!this.openaiApiKey) {
-            alert('API key not configured. Please refresh and enter your API key.');
+        
+        // Safety check: ensure API key exists
+        if (!this.googleApiKey) {
+            alert('❌ API key not configured!\n\n' +
+                'Click the ⚙️ button to set your Google API key.');
+            this.showNoKeyError();
             return;
         }
 
@@ -197,7 +275,7 @@ const app = {
             this.showLoading(false);
             console.error('Error:', error);
             this.addMessageToChat(
-                '❌ Error: ' + error.message + '\n\nMake sure your API key is valid and has available credits.',
+                '❌ Error: ' + error.message + '\n\nMake sure your API key is valid.',
                 'bot'
             );
         } finally {
@@ -221,34 +299,74 @@ KEY PRINCIPLES:
 Provide compassionate, practical responses using CBT principles. Keep responses focused and actionable.`;
 
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            // Build the full conversation history with system prompt
+            const messages = [
+                systemPrompt,
+                ...this.conversationHistory.slice(-10).map(msg => 
+                    msg.role === 'user' ? `User: ${msg.content}` : `Assistant: ${msg.content}`
+                ),
+                `User: ${userMessage}`
+            ].join('\n\n');
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${this.geminiModel}:generateContent`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.openaiApiKey}`
+                    'x-goog-api-key': this.googleApiKey
                 },
                 body: JSON.stringify({
-                    model: this.openaiModel,
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        ...this.conversationHistory.slice(-10),
-                        { role: 'user', content: userMessage }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 2000
+                    contents: [{
+                        parts: [{
+                            text: messages
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 2000,
+                    }
                 })
             });
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error?.message || 'API request failed');
+                const errorMessage = error.error?.message || JSON.stringify(error);
+                
+                // Check for common API errors
+                if (errorMessage.includes('API key') || errorMessage.includes('invalid') || errorMessage.includes('401')) {
+                    throw new Error(
+                        '❌ Invalid API Key!\n\n' +
+                        'Your Google API key appears to be incorrect or invalid.\n\n' +
+                        'Please check:\n' +
+                        '1. The key starts with "AQ."\n' +
+                        '2. You copied the entire key\n' +
+                        '3. The key is still active\n' +
+                        '4. Generative AI API is enabled\n\n' +
+                        'Click the ⚙️ button to enter a new API key.\n\n' +
+                        'Get a new key at: https://aistudio.google.com/app/apikey'
+                    );
+                } else if (errorMessage.includes('quota') || errorMessage.includes('429')) {
+                    throw new Error(
+                        '⏱️ Rate Limited or Quota Exceeded\n\n' +
+                        'You have exceeded your API quota.\n\n' +
+                        'Please wait a while and try again, or check your quota at:\n' +
+                        'https://aistudio.google.com/app/apikey'
+                    );
+                }
+                
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            
+            // Extract text from Gemini response
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                return data.candidates[0].content.parts[0].text;
+            }
+            
+            throw new Error('Invalid response format from API');
 
         } catch (error) {
-            console.error('OpenAI API error:', error);
+            console.error('Google Generative AI error:', error);
             throw error;
         }
     },
@@ -392,11 +510,37 @@ Provide compassionate, practical responses using CBT principles. Keep responses 
     },
 
     changeApiKey() {
-        const newKey = prompt('Enter your new OpenAI API key:');
+        const newKey = prompt(
+            '🔑 Enter your new Google Generative AI API key:\n\n' +
+            'It must start with "AQ."\n\n' +
+            'Get it from: https://aistudio.google.com/app/apikey'
+        );
+        
         if (newKey && newKey.trim()) {
-            localStorage.setItem('cbt_openai_api_key', newKey.trim());
-            this.openaiApiKey = newKey.trim();
-            alert('API key updated! Reload the page to apply changes.');
+            const trimmedKey = newKey.trim();
+            
+            // Validate API key format
+            if (!trimmedKey.startsWith('AQ.')) {
+                alert('❌ Invalid API Key!\n\n' +
+                    'Google API keys must start with "AQ."\n\n' +
+                    'You provided: ' + trimmedKey.substring(0, 30) + '...\n\n' +
+                    'Please get a valid key from:\n' +
+                    'https://aistudio.google.com/app/apikey');
+                this.changeApiKey();
+                return;
+            }
+            
+            if (trimmedKey.length < 20) {
+                alert('❌ API Key Too Short!\n\n' +
+                    'Google API keys are usually 40+ characters.\n\n' +
+                    'Make sure you copied the entire key.');
+                this.changeApiKey();
+                return;
+            }
+            
+            localStorage.setItem('cbt_google_api_key', trimmedKey);
+            this.googleApiKey = trimmedKey;
+            alert('✅ API key updated!\n\nThe app will use your new key for all future requests.');
         }
     },
 

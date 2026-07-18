@@ -32,9 +32,9 @@ GitHub Pages provides **free, instant deployment** of static websites.
    - Visit: `https://yourusername.github.io/cbt-habit-breaker-ai`
    - Or check Settings → Pages for your deployment URL
 
-6. **Add Your OpenAI API Key**
+6. **Add Your Google API Key**
    - Open your deployed app
-   - When prompted, paste your OpenAI API key
+   - When prompted, paste your Google Generative AI API key
    - App will store it locally in your browser
 
 ---
@@ -61,18 +61,19 @@ Then open: `http://localhost:3000`
 
 ---
 
-## 🔑 Getting Your OpenAI API Key
+## 🔑 Getting Your Google Generative AI API Key
 
 **Required for the app to work!**
 
-1. Go to https://platform.openai.com/account/api-keys
-2. Sign in with your OpenAI account (create one if needed)
-3. Click "Create new secret key"
-4. Copy the key (you won't see it again!)
-5. When the app prompts you, paste it there
-6. Your key stays in your browser only
+1. Go to https://aistudio.google.com/app/apikey
+2. Sign in with your Google account (create one if needed)
+3. Click "Create API Key"
+4. Select your project (or create a new one)
+5. Copy the key (starts with "AQ.")
+6. When the app prompts you, paste it there
+7. Your key stays in your browser only
 
-**Cost**: You only pay for API usage (text generation)
+**Cost**: Google's Generative AI API has a free tier with generous limits!
 
 ---
 

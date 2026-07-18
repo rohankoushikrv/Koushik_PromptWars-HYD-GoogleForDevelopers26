@@ -6,7 +6,7 @@ This is a complete guide for deploying the CBT Habit Breaker AI webapp to GitHub
 
 - GitHub account (free at github.com)
 - Git installed on your computer
-- OpenAI API key (get from platform.openai.com)
+- Google Generative AI API key (get from aistudio.google.com/app/apikey)
 
 ## 🚀 Quick Deploy (5 minutes)
 
@@ -40,14 +40,15 @@ This is a complete guide for deploying the CBT Habit Breaker AI webapp to GitHub
 - Visit: `https://yourusername.github.io/cbt-habit-breaker-ai`
 - Bookmark this URL!
 
-### Step 5: Add Your OpenAI API Key
+### Step 5: Add Your Google API Key
 
 1. Open your app URL
 2. A prompt will ask for your API key
-3. Go to https://platform.openai.com/api-keys
-4. Create a new secret key
-5. Copy and paste into the app
-6. Done! Your app is ready to use
+3. Go to https://aistudio.google.com/app/apikey
+4. Click "Create API Key" 
+5. Select your project and copy the key
+6. Paste into the app (key starts with "AQ.")
+7. Done! Your app is ready to use
 
 ---
 
@@ -123,9 +124,9 @@ git push origin main
 ### "API key not working"
 
 **Solution:**
-1. Verify your API key from openai.com/api-keys
-2. Make sure it starts with "sk-"
-3. Check you have API credits
+1. Verify your API key from https://aistudio.google.com/app/apikey
+2. Make sure it starts with "AQ."
+3. Check Generative AI API is enabled for your project
 4. Try refreshing the page
 
 ### "Changes not showing up"
@@ -144,8 +145,8 @@ git push origin main
 
 ✅ **Do This:**
 - Store API key locally in your browser only
-- Rotate keys regularly in OpenAI console
-- Monitor API usage on openai.com
+- Rotate keys regularly in Google AI Studio
+- Monitor API usage on https://aistudio.google.com/app/apikey
 - Use free tier while testing
 
 ❌ **Don't Do This:**
@@ -156,7 +157,7 @@ git push origin main
 
 ### If API Key Leaked
 
-1. Go to https://platform.openai.com/api-keys
+1. Go to https://aistudio.google.com/app/apikey
 2. Delete the compromised key
 3. Create a new key
 4. Update it in your app
