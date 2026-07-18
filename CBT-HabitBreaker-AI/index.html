@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Habit Breaker - Your Path to Positive Change</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🧠 CBT Habit Breaker</h1>
+                <p class="tagline">Your empathetic AI companion for breaking bad habits</p>
+            </div>
+            <div class="session-info">
+                <span id="session-status">Ready to help</span>
+                <button class="btn-settings" onclick="app.changeApiKey()" title="Change API Key">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar: Session Details -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Current Focus</h3>
+                    <div id="current-habit" class="habit-display">
+                        <p class="placeholder">Select or describe a habit</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Progress Tracker</h3>
+                    <div id="progress-tracker" class="progress-container">
+                        <div class="progress-item">
+                            <label>Days Without Trigger:</label>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="days-count">0 days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Quick Actions</h3>
+                    <button class="btn btn-secondary" onclick="app.showEmergencySupport()">🆘 Crisis Support</button>
+                    <button class="btn btn-secondary" onclick="app.clearSession()">New Session</button>
+                </div>
+            </aside>
+
+            <!-- Chat Interface -->
+            <div class="chat-container">
+                <!-- Chat History -->
+                <div class="chat-history" id="chat-history">
+                    <div class="chat-message bot-message">
+                        <div class="message-content">
+                            <p><strong>Welcome to CBT Habit Breaker</strong></p>
+                            <p>I'm your empathetic AI companion trained in Cognitive Behavioral Therapy. I'm here to help you understand your habits and develop practical strategies to overcome them.</p>
+                            <p>To get started, please tell me:</p>
+                            <ul>
+                                <li>What habit or addiction would you like to work on?</li>
+                                <li>How long has this been challenging for you?</li>
+                                <li>What have you already tried?</li>
+                            </ul>
+                        </div>
+                        <span class="message-time">Now</span>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="chat-input-area">
+                    <div class="input-container">
+                        <textarea 
+                            id="message-input" 
+                            placeholder="Share what's on your mind... (Press Ctrl+Enter to send)"
+                            class="message-input"
+                        ></textarea>
+                        <button id="send-btn" class="btn btn-primary" onclick="app.sendMessage()">Send</button>
+                    </div>
+                    <div class="input-help">
+                        <small>💡 Tip: Be honest and specific. The more details you share, the better support I can provide.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Coping Strategies -->
+            <aside class="strategies-panel">
+                <div class="panel-header">
+                    <h3>Coping Strategies</h3>
+                </div>
+                <div id="strategies-list" class="strategies-list">
+                    <p class="placeholder">Strategies will appear here</p>
+                </div>
+                
+                <div class="panel-header" style="margin-top: 20px;">
+                    <h3>Resources</h3>
+                </div>
+                <div class="resources-list">
+                    <a href="#" class="resource-link" onclick="app.showResource('crisis')">Crisis Hotlines</a>
+                    <a href="#" class="resource-link" onclick="app.showResource('cbt-techniques')">CBT Techniques</a>
+                    <a href="#" class="resource-link" onclick="app.showResource('support-groups')">Support Groups</a>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Loading Indicator -->
+        <div id="loading-indicator" class="loading-indicator hidden">
+            <div class="spinner"></div>
+            <p>Thinking...</p>
+        </div>
+
+        <!-- Modal: Emergency Support -->
+        <div id="crisis-modal" class="modal hidden">
+            <div class="modal-content crisis-content">
+                <button class="modal-close" onclick="app.closeModal()">&times;</button>
+                <h2>🆘 Immediate Support</h2>
+                <p>If you're in crisis or having thoughts of self-harm, please reach out immediately:</p>
+                <div class="crisis-resources">
+                    <div class="resource-card">
+                        <h4>National Suicide Prevention Lifeline</h4>
+                        <p class="phone">1-800-273-8255</p>
+                        <p class="available">Available 24/7</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>Crisis Text Line</h4>
+                        <p class="phone">Text HOME to 741741</p>
+                        <p class="available">Available 24/7</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>SAMHSA National Helpline</h4>
+                        <p class="phone">1-800-662-4357</p>
+                        <p class="available">Free, confidential, 24/7</p>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; font-weight: bold;">Remember: You are not alone. Help is available.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
