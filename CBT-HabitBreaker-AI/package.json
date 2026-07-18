@@ -9,7 +9,7 @@
     "dev": "python -m http.server 3000",
     "build": "echo 'Static webapp - no build needed'",
     "deploy": "npm run build && gh-pages -d .",
-    "test": "node --test test/validators.test.js test/security.test.js test/cbt-agent.test.js test/server.test.js"
+    "test": "node --test test/validators.test.js test/security.test.js test/cbt-agent.test.js test/server.test.js test/uat.test.js"
   },
   "keywords": [
     "CBT",
