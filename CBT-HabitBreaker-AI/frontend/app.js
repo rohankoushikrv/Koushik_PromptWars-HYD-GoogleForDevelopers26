@@ -870,6 +870,15 @@ Your goal is to help users understand their habits, identify triggers, and build
         }
     },
 
+    toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    },
+
     /* ========== UTILITIES ========== */
 
     generateId() {

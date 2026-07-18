@@ -1144,3 +1144,84 @@ textarea:focus-visible,
     outline: 3px solid var(--secondary-light) !important;
     outline-offset: 2px !important;
 }
+
+/* ========== RESPONSIVE COLLAPSIBLE SIDE DRAWER (MOBILE VIEW) ========== */
+
+.menu-toggle-btn {
+    display: none;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-md);
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.menu-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+.menu-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+/* Sidebar overlay backdrop on mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 998; /* Under sidebar, above chat */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Off-canvas sidebar transition on screens under 900px */
+@media (max-width: 900px) {
+    .menu-toggle-btn {
+        display: flex;
+    }
+
+    .main-content {
+        grid-template-columns: 1fr !important; /* Full width for the chat window on mobile! */
+        padding: 12px;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: -320px; /* Off-screen default state */
+        width: 300px;
+        height: 100vh;
+        z-index: 999 !important; /* Floats over the rest of the application */
+        border-radius: 0 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-lg);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--surface) 100%) !important;
+    }
+
+    .sidebar.active {
+        transform: translateX(320px); /* Slid-in state */
+    }
+
+    /* Force the strategies-panel to hide entirely on mobile to keep screen spacing clean */
+    .strategies-panel {
+        display: none !important;
+    }
+}

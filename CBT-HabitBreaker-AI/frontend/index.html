@@ -10,9 +10,12 @@
     <div class="app-container">
         <!-- Header -->
         <header class="header">
-            <div class="header-content">
-                <h1>🧠 Rohan CBT Habit Breaker</h1>
-                <p class="tagline">Your empathetic AI companion for breaking bad habits</p>
+            <div class="header-left" style="display: flex; align-items: center; gap: 16px;">
+                <button class="menu-toggle-btn" id="menu-toggle-btn" onclick="app.toggleSidebar()" aria-label="Toggle Navigation Side Menu">☰</button>
+                <div class="header-content">
+                    <h1>🧠 Rohan CBT Habit Breaker</h1>
+                    <p class="tagline">Your empathetic AI companion for breaking bad habits</p>
+                </div>
             </div>
             <div class="session-info">
                 <span id="session-status">Ready to help</span>
@@ -123,6 +126,9 @@
             <div class="spinner"></div>
             <p>Rohan is thinking...</p>
         </div>
+
+        <!-- Sidebar Overlay Backdrop for Mobile Menu -->
+        <div id="sidebar-overlay" class="sidebar-overlay" onclick="app.toggleSidebar()" aria-hidden="true"></div>
 
         <!-- Modal: Breathing Widget (Coping Support Mechanism) -->
         <div id="breathing-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="breathing-title">
