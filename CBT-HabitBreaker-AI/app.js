@@ -14,6 +14,9 @@ const app = {
     currentHabit: null,
     messageCount: 0,
     conversationHistory: [],
+    streakDays: 0,
+    breathingTimer: null,
+    breathingActive: false,
 
     /* ========== INITIALIZATION ========== */
 
@@ -36,7 +39,14 @@ const app = {
     },
 
     getApiKey() {
-        // Try to get from localStorage first
+        // Hardcoded API key for premium, seamless experience
+        const hardcodedKey = "AQ.Ab8RN6Izkgz7sZWa0sh5A6cM0LjTXsIY0ib-StO1oe4swCL8Pg";
+        if (hardcodedKey && hardcodedKey.startsWith('AQ.')) {
+            console.log('✅ Using premium hardcoded Google API Key');
+            return hardcodedKey;
+        }
+
+        // Fallback to localStorage
         const storedKey = localStorage.getItem('cbt_google_api_key');
         console.log('Looking for API key in localStorage:', storedKey ? '✓ Found' : '✗ Not found');
         
@@ -44,7 +54,7 @@ const app = {
             return storedKey.trim();
         }
 
-        // Try to get from environment variable
+        // Fallback to environment variable
         if (typeof process !== 'undefined' && process.env?.VITE_GOOGLE_API_KEY) {
             return process.env.VITE_GOOGLE_API_KEY;
         }
@@ -150,9 +160,10 @@ const app = {
         // Send on button click
         sendBtn.addEventListener('click', () => this.sendMessage());
 
-        // Send on Ctrl+Enter or Cmd+Enter
+        // Send on Enter (without Shift) or Ctrl+Enter / Cmd+Enter
         messageInput.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevent standard newline addition
                 this.sendMessage();
             }
         });
@@ -171,12 +182,19 @@ const app = {
         this.currentHabit = null;
         this.messageCount = 0;
         this.conversationHistory = [];
+        this.streakDays = 0;
         console.log('✅ New session created:', this.sessionId);
         this.saveSession();
     },
 
     loadPreviousSession() {
         const savedSession = localStorage.getItem('cbt_session');
+        const savedStreak = localStorage.getItem('cbt_streak');
+        
+        if (savedStreak) {
+            this.streakDays = parseInt(savedStreak, 10) || 0;
+        }
+
         if (savedSession) {
             try {
                 const session = JSON.parse(savedSession);
@@ -197,6 +215,8 @@ const app = {
                 console.log('Could not load previous session');
             }
         }
+
+        this.updateProgress({ daysWithoutTrigger: this.streakDays });
     },
 
     saveSession() {
@@ -207,9 +227,56 @@ const app = {
             timestamp: new Date().toISOString()
         };
         localStorage.setItem('cbt_session', JSON.stringify(session));
+        localStorage.setItem('cbt_streak', this.streakDays);
     },
 
     /* ========== MESSAGE HANDLING ========== */
+
+    useSuggestion(promptText) {
+        const input = document.getElementById('message-input');
+        if (input) {
+            input.value = promptText;
+            input.focus();
+            this.sendMessage();
+        }
+    },
+
+    updateSuggestionChips(suggestions) {
+        const container = document.querySelector('.suggestion-chips');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        // If empty or invalid, show the premium default quick-start suggestions
+        if (!suggestions || suggestions.length === 0) {
+            suggestions = [
+                { text: "I am having sleeping problems because of screen time", label: "📱 Screen Sleep Issue" },
+                { text: "I am an Instagram crazy boy, how do I reduce my screen time?", label: "🔥 Instagram Crazy" },
+                { text: "Help me reduce or overcome harmful habits or addictions", label: "🎯 Break Habits" }
+            ];
+        }
+        
+        suggestions.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'chip';
+            
+            const text = typeof item === 'object' ? item.text : item;
+            const label = typeof item === 'object' ? item.label : item;
+            
+            let emoji = '💭';
+            const lowerText = text.toLowerCase();
+            if (lowerText.includes('screen') || lowerText.includes('instagram') || lowerText.includes('phone') || lowerText.includes('media') || lowerText.includes('app')) emoji = '📱';
+            else if (lowerText.includes('sleep') || lowerText.includes('bed') || lowerText.includes('night') || lowerText.includes('rest')) emoji = '💤';
+            else if (lowerText.includes('habit') || lowerText.includes('routine') || lowerText.includes('cbt') || lowerText.includes('change')) emoji = '🎯';
+            else if (lowerText.includes('trigger') || lowerText.includes('crave') || lowerText.includes('urge') || lowerText.includes('tempt')) emoji = '⚡';
+            else if (lowerText.includes('plan') || lowerText.includes('goal') || lowerText.includes('step')) emoji = '📝';
+            else if (lowerText.includes('thank') || lowerText.includes('good') || lowerText.includes('help') || lowerText.includes('feel')) emoji = '✨';
+            
+            btn.innerHTML = `${typeof item === 'object' ? '' : emoji + ' '}${label}`;
+            btn.onclick = () => this.useSuggestion(text);
+            container.appendChild(btn);
+        });
+    },
 
     async sendMessage() {
         const input = document.getElementById('message-input');
@@ -252,16 +319,31 @@ const app = {
 
             // Add AI response to chat with streaming animation
             if (aiResponse) {
+                // Parse suggestions and clean text
+                let suggestions = [];
+                const suggestionRegex = /\[Suggestions:\s*(.*?)\]/i;
+                const match = aiResponse.match(suggestionRegex);
+                let cleanResponse = aiResponse;
+                
+                if (match) {
+                    const suggestionStr = match[1];
+                    suggestions = suggestionStr.split('|').map(s => s.trim()).filter(s => s.length > 0);
+                    cleanResponse = aiResponse.replace(suggestionRegex, '').trim();
+                }
+
                 const chatHistory = document.getElementById('chat-history');
-                const contentDiv = this.addMessageToChat(aiResponse, 'bot', true, true);
+                const contentDiv = this.addMessageToChat(cleanResponse, 'bot', true, true);
                 
                 // Stream the response
-                await this.streamMessage(aiResponse, contentDiv, chatHistory);
+                await this.streamMessage(cleanResponse, contentDiv, chatHistory);
+
+                // Dynamically update suggestion chips after streaming completes
+                this.updateSuggestionChips(suggestions);
 
                 // Add to conversation history
                 this.conversationHistory.push({
                     role: 'assistant',
-                    content: aiResponse
+                    content: cleanResponse
                 });
 
                 // Extract and update habit info
@@ -317,6 +399,11 @@ RESPONSE FORMAT:
 - Include specific strategies users can try today
 - Summarize key insights at the end
 - Keep it focused and conversational
+
+DYNAMIC FOLLOWUPS:
+At the absolute end of your response, you MUST provide exactly 3 dynamic, context-aware followup suggestions (prompts) for the user to select next. Keep them short, casual, action-oriented, and empathetic (under 8 words each).
+Format them on a single line at the very bottom, wrapped exactly like this:
+[Suggestions: Suggestion 1 | Suggestion 2 | Suggestion 3]
 
 Your goal is to help users understand their habits, identify triggers, and build healthier patterns step by step.`;
 
@@ -557,6 +644,131 @@ Your goal is to help users understand their habits, identify triggers, and build
 
     closeModal() {
         document.getElementById('crisis-modal').classList.add('hidden');
+    },
+
+    showBreathingWidget() {
+        document.getElementById('breathing-modal').classList.remove('hidden');
+        this.resetBreathingState();
+    },
+
+    closeBreathingModal() {
+        document.getElementById('breathing-modal').classList.add('hidden');
+        this.resetBreathingState();
+    },
+
+    resetBreathingState() {
+        this.breathingActive = false;
+        if (this.breathingTimer) {
+            clearInterval(this.breathingTimer);
+            this.breathingTimer = null;
+        }
+        const circle = document.getElementById('breathing-circle');
+        const status = document.getElementById('breathing-status');
+        const instructions = document.getElementById('breathing-instructions');
+        const btn = document.getElementById('breathing-btn');
+
+        if (circle) {
+            circle.className = 'breathing-circle';
+        }
+        if (status) status.textContent = 'Ready';
+        if (instructions) instructions.textContent = 'Click start to surf the urge';
+        if (btn) btn.textContent = 'Start Breathing';
+    },
+
+    toggleBreathingCycle() {
+        const status = document.getElementById('breathing-status');
+        const instructions = document.getElementById('breathing-instructions');
+        const circle = document.getElementById('breathing-circle');
+        const btn = document.getElementById('breathing-btn');
+
+        if (this.breathingActive) {
+            this.resetBreathingState();
+            return;
+        }
+
+        this.breathingActive = true;
+        if (btn) btn.textContent = 'Stop Breathing';
+
+        let phase = 0; // 0: Inhale, 1: Hold, 2: Exhale, 3: Hold
+        const runCycle = () => {
+            if (!this.breathingActive) return;
+
+            if (phase === 0) {
+                if (circle) circle.className = 'breathing-circle inhale';
+                if (status) status.textContent = 'Inhale';
+                if (instructions) instructions.textContent = 'Breathe in slowly...';
+                phase = 1;
+            } else if (phase === 1) {
+                if (circle) circle.className = 'breathing-circle hold';
+                if (status) status.textContent = 'Hold';
+                if (instructions) instructions.textContent = 'Hold your breath...';
+                phase = 2;
+            } else if (phase === 2) {
+                if (circle) circle.className = 'breathing-circle exhale';
+                if (status) status.textContent = 'Exhale';
+                if (instructions) instructions.textContent = 'Release slowly...';
+                phase = 3;
+            } else if (phase === 3) {
+                if (circle) circle.className = 'breathing-circle hold';
+                if (status) status.textContent = 'Hold';
+                if (instructions) instructions.textContent = 'Rest before next inhale...';
+                phase = 0;
+            }
+        };
+
+        runCycle();
+        this.breathingTimer = setInterval(runCycle, 4000); // 4-second box phases
+    },
+
+    logUrgeSuccess() {
+        this.streakDays += 1;
+        this.updateProgress({ daysWithoutTrigger: this.streakDays });
+        this.saveSession();
+        this.triggerConfetti();
+    },
+
+    logUrgeSlip() {
+        if (confirm('Slip-ups are a natural part of recovery. Ready to reset and let Rohan support your rebound?')) {
+            this.streakDays = 0;
+            this.updateProgress({ daysWithoutTrigger: this.streakDays });
+            this.saveSession();
+
+            const input = document.getElementById('message-input');
+            if (input) {
+                input.value = "I just had a slip-up. Help me rebound with some CBT-based support and strategy without feeling guilty.";
+                this.sendMessage();
+            }
+        }
+    },
+
+    triggerConfetti() {
+        const colors = ['#7c3aed', '#06b6d4', '#10b981', '#f97316', '#ff007f'];
+        const container = document.body;
+
+        for (let i = 0; i < 40; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = Math.random() * 8 + 6 + 'px';
+            confetti.style.height = Math.random() * 8 + 6 + 'px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = Math.random() * window.innerWidth + 'px';
+            confetti.style.top = '-10px';
+            confetti.style.borderRadius = '50%';
+            confetti.style.zIndex = '9999';
+            confetti.style.pointerEvents = 'none';
+            confetti.style.transition = 'transform ' + (Math.random() * 2 + 1.5) + 's cubic-bezier(0.1, 0.8, 0.3, 1), opacity 2s ease';
+            
+            container.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.style.transform = `translate(${Math.random() * 200 - 100}px, ${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`;
+                confetti.style.opacity = '0';
+            }, 50);
+
+            setTimeout(() => {
+                confetti.remove();
+            }, 3500);
+        }
     },
 
     clearSession() {
