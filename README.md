@@ -8,6 +8,8 @@ A highly secure, empathetic, and responsive client-side AI Agent specialized in 
 * **Live Web App**: [https://rohankoushikrv.github.io/Koushik_PromptWars-HYD-GoogleForDevelopers26/](https://rohankoushikrv.github.io/Koushik_PromptWars-HYD-GoogleForDevelopers26/index.html)
 * **Public GitHub Repository**: [https://github.com/rohankoushikrv/Koushik_PromptWars-HYD-GoogleForDevelopers26](https://github.com/rohankoushikrv/Koushik_PromptWars-HYD-GoogleForDevelopers26)
 
+<img width="1919" height="995" alt="image" src="https://github.com/user-attachments/assets/46a0e5ef-682c-462a-8344-cdeb254866b8" />
+
 ---
 
 ## 🏆 **AI Evaluation Score Dashboard**
