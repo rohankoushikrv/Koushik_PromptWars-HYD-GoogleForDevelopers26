@@ -17,7 +17,7 @@
                     <p class="tagline">Your empathetic AI companion for breaking bad habits</p>
                 </div>
             </div>
-            <div class="session-info">
+            <div class="session-info header-session-info">
                 <span id="session-status">Ready to help</span>
                 <button class="btn-settings" onclick="app.changeApiKey()" title="Change API Key" aria-label="Change Google Gemini API Key Settings">⚙️</button>
             </div>
@@ -27,6 +27,15 @@
         <main class="main-content">
             <!-- Sidebar: Session Details -->
             <aside class="sidebar" aria-label="Session Details and Habit Progress Tracker">
+                <!-- Mobile Session Info (moved to navigation side drawer on mobile screens) -->
+                <div class="sidebar-section mobile-session-info-container">
+                    <h3>Session Status</h3>
+                    <div class="session-info mobile-session-info">
+                        <span id="session-status-mobile">Ready to help</span>
+                        <button class="btn-settings" onclick="app.changeApiKey()" title="Change API Key" aria-label="Change Google Gemini API Key Settings">⚙️</button>
+                    </div>
+                </div>
+
                 <div class="sidebar-section">
                     <h3>Current Focus</h3>
                     <div id="current-habit" class="habit-display" aria-live="polite">
