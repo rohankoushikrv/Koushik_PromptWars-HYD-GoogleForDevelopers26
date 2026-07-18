@@ -7,7 +7,7 @@
 const app = {
     // Google Generative AI Configuration
     googleApiKey: null,
-    geminiModel: 'gemini-1.5-flash',
+    geminiModel: 'gemini-3.5-flash',
     
     // Local Configuration
     sessionId: null,
