@@ -5,10 +5,15 @@ A highly secure, empathetic, and responsive client-side AI Agent specialized in 
 ---
 
 ### 🚀 **Deployment Information**
-* **Live Web App**: [https://rohankoushikrv.github.io/Koushik_PromptWars-HYD-GoogleForDevelopers26/index.html](https://rohankoushikrv.github.io/Koushik_PromptWars-HYD-GoogleForDevelopers26/index.html)
+* **Live Web App**: [https://rohankoushikrv.github.io/Koushik_PromptWars-HYD-GoogleForDevelopers26/CBT-HabitBreaker-AI/index.html](https://rohankoushikrv.github.io/Koushik_PromptWars-HYD-GoogleForDevelopers26/CBT-HabitBreaker-AI/index.html)
 * **Public GitHub Repository**: [https://github.com/rohankoushikrv/Koushik_PromptWars-HYD-GoogleForDevelopers26](https://github.com/rohankoushikrv/Koushik_PromptWars-HYD-GoogleForDevelopers26)
 
 <img width="1919" height="995" alt="image" src="https://github.com/user-attachments/assets/46a0e5ef-682c-462a-8344-cdeb254866b8" />
+<img width="1919" height="995" alt="image" src="https://github.com/user-attachments/assets/7a0eeaea-ef89-42ab-bc74-b84cf65e90a6" />
+<img width="1919" height="989" alt="image" src="https://github.com/user-attachments/assets/a1b36d2a-6147-4636-b022-260eaaef24cf" />
+<img width="1919" height="988" alt="image" src="https://github.com/user-attachments/assets/c4b66d6d-7209-42fe-b74e-9885be1c99f4" />
+<img width="1919" height="994" alt="image" src="https://github.com/user-attachments/assets/5286078e-44f8-49fe-b615-736176d92957" />
+
 
 ---
 
