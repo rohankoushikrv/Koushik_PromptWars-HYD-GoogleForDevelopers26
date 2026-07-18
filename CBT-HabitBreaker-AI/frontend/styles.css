@@ -1135,3 +1135,12 @@ body {
         font-size: 13px;
     }
 }
+
+/* Global Focus Visible Styling for High Accessibility */
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+    outline: 3px solid var(--secondary-light) !important;
+    outline-offset: 2px !important;
+}

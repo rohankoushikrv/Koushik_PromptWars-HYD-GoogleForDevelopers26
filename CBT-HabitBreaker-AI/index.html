@@ -16,17 +16,17 @@
             </div>
             <div class="session-info">
                 <span id="session-status">Ready to help</span>
-                <button class="btn-settings" onclick="app.changeApiKey()" title="Change API Key">⚙️</button>
+                <button class="btn-settings" onclick="app.changeApiKey()" title="Change API Key" aria-label="Change Google Gemini API Key Settings">⚙️</button>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Sidebar: Session Details -->
-            <aside class="sidebar">
+            <aside class="sidebar" aria-label="Session Details and Habit Progress Tracker">
                 <div class="sidebar-section">
                     <h3>Current Focus</h3>
-                    <div id="current-habit" class="habit-display">
+                    <div id="current-habit" class="habit-display" aria-live="polite">
                         <p class="placeholder">Select or describe a habit</p>
                     </div>
                 </div>
@@ -35,31 +35,31 @@
                     <h3>Progress Tracker</h3>
                     <div id="progress-tracker" class="progress-container">
                         <div class="progress-item">
-                            <label>Days Without Trigger:</label>
-                            <div class="progress-bar">
+                            <label id="streak-label">Days Without Trigger:</label>
+                            <div class="progress-bar" role="progressbar" aria-labelledby="streak-label" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                 <div class="progress-fill" style="width: 0%"></div>
                             </div>
-                            <span id="days-count">0 days</span>
+                            <span id="days-count" aria-live="polite">0 days</span>
                         </div>
                         <div class="urge-tracker-buttons" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                            <button class="btn btn-primary" onclick="app.logUrgeSuccess()" style="font-size: 11px; padding: 10px 4px; border-radius: var(--radius-md); text-align: center; font-weight: 700;">🟢 Overcame</button>
-                            <button class="btn btn-danger" onclick="app.logUrgeSlip()" style="font-size: 11px; padding: 10px 4px; border-radius: var(--radius-md); text-align: center; font-weight: 700; background: var(--danger-color); color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);">🔴 Gave In</button>
+                            <button class="btn btn-primary" onclick="app.logUrgeSuccess()" style="font-size: 11px; padding: 10px 4px; border-radius: var(--radius-md); text-align: center; font-weight: 700;" aria-label="Successfully overcame urge trigger">🟢 Overcame</button>
+                            <button class="btn btn-danger" onclick="app.logUrgeSlip()" style="font-size: 11px; padding: 10px 4px; border-radius: var(--radius-md); text-align: center; font-weight: 700; background: var(--danger-color); color: white; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);" aria-label="Report a slip-up and get supportive strategy">🔴 Gave In</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="sidebar-section">
                     <h3>Quick Actions</h3>
-                    <button class="btn btn-secondary" onclick="app.showBreathingWidget()">🌀 Emergency: Calm Down</button>
-                    <button class="btn btn-secondary" onclick="app.showEmergencySupport()">🆘 Crisis Support</button>
-                    <button class="btn btn-secondary" onclick="app.clearSession()">New Session</button>
+                    <button class="btn btn-secondary" onclick="app.showBreathingWidget()" aria-label="Open clinical box breathing widget">🌀 Emergency: Calm Down</button>
+                    <button class="btn btn-secondary" onclick="app.showEmergencySupport()" aria-label="Open immediate crisis support details">🆘 Crisis Support</button>
+                    <button class="btn btn-secondary" onclick="app.clearSession()" aria-label="Start a new chat session">New Session</button>
                 </div>
             </aside>
 
             <!-- Chat Interface -->
             <div class="chat-container">
                 <!-- Chat History -->
-                <div class="chat-history" id="chat-history">
+                <div class="chat-history" id="chat-history" aria-live="polite" aria-label="Conversation logs with CBT AI coach">
                     <div class="chat-message bot-message">
                         <div class="message-content">
                             <p>Welcome to Habit Breaker</p>
@@ -80,18 +80,19 @@
 
                 <!-- Input Area -->
                 <div class="chat-input-area">
-                    <div class="suggestion-chips">
-                        <button class="chip" onclick="app.useSuggestion('I am having sleeping problems because of screen time')">📱 Screen Sleep Issue</button>
-                        <button class="chip" onclick="app.useSuggestion('I am an Instagram crazy boy, how do I reduce my screen time?')">🔥 Instagram Crazy</button>
-                        <button class="chip" onclick="app.useSuggestion('Help me reduce or overcome harmful habits or addictions')">🎯 Break Habits</button>
+                    <div class="suggestion-chips" role="group" aria-label="Suggested quick start triggers">
+                        <button class="chip" onclick="app.useSuggestion('I am having sleeping problems because of screen time')" aria-label="Suggested prompt: Screen sleep issue">📱 Screen Sleep Issue</button>
+                        <button class="chip" onclick="app.useSuggestion('I am an Instagram crazy boy, how do I reduce my screen time?')" aria-label="Suggested prompt: Instagram screen time reduction">🔥 Instagram Crazy</button>
+                        <button class="chip" onclick="app.useSuggestion('Help me reduce or overcome harmful habits or addictions')" aria-label="Suggested prompt: General CBT habit-breaking help">🎯 Break Habits</button>
                     </div>
                     <div class="input-container">
                         <textarea 
                             id="message-input" 
                             placeholder="Help me reduce or overcome harmful habits such as excessive screen time or addictions..."
                             class="message-input"
+                            aria-label="Write your message here to get support for breaking habits"
                         ></textarea>
-                        <button id="send-btn" class="btn btn-primary" onclick="app.sendMessage()">Send</button>
+                        <button id="send-btn" class="btn btn-primary" onclick="app.sendMessage()" aria-label="Send message to CBT Coach">Send</button>
                     </div>
                     <div class="input-help">
                         <small>💡 Tip: Press Enter to send. Shift+Enter for a new line. Be honest and specific.</small>
@@ -100,7 +101,7 @@
             </div>
 
             <!-- Right Panel: Coping Strategies -->
-            <aside class="strategies-panel">
+            <aside class="strategies-panel" aria-label="CBT Coping Strategies Recommended for you">
                 <div class="panel-header">
                     <h3>Coping Strategies</h3>
                 </div>
@@ -124,29 +125,29 @@
         </div>
 
         <!-- Modal: Breathing Widget (Coping Support Mechanism) -->
-        <div id="breathing-modal" class="modal hidden">
+        <div id="breathing-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="breathing-title">
             <div class="modal-content breathing-content" style="text-align: center; max-width: 480px; padding: 40px 30px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
-                <button class="modal-close" onclick="app.closeBreathingModal()">&times;</button>
-                <h2>🌀 Urge Surfer - Calm Down</h2>
+                <button class="modal-close" onclick="app.closeBreathingModal()" aria-label="Close breathing modal dialog">&times;</button>
+                <h2 id="breathing-title">🌀 Urge Surfer - Calm Down</h2>
                 <p>When an urge strikes, ride it like a wave. Calm your nervous system with clinical box breathing.</p>
                 
                 <div class="breathing-cycle-container" style="margin: 30px 0; position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center;">
                     <div class="breathing-circle-outer" style="position: absolute; border: 2px dashed rgba(124, 58, 237, 0.4); border-radius: 50%; width: 100%; height: 100%; animation: spin 20s linear infinite;"></div>
-                    <div class="breathing-circle" id="breathing-circle">
+                    <div class="breathing-circle" id="breathing-circle" role="img" aria-label="Breathing guidance circle">
                         <span id="breathing-status">Ready</span>
                     </div>
                 </div>
                 
                 <div id="breathing-instructions" style="font-weight: 600; font-size: 16px; color: var(--secondary-light); min-height: 24px; text-transform: uppercase; letter-spacing: 1px;">Click start to surf the urge</div>
-                <button class="btn btn-primary" id="breathing-btn" onclick="app.toggleBreathingCycle()" style="width: 100%; margin-top: 10px;">Start Breathing</button>
+                <button class="btn btn-primary" id="breathing-btn" onclick="app.toggleBreathingCycle()" aria-label="Toggle breathing exercise">Start Breathing</button>
             </div>
         </div>
 
         <!-- Modal: Emergency Support -->
-        <div id="crisis-modal" class="modal hidden">
+        <div id="crisis-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="crisis-title">
             <div class="modal-content crisis-content">
-                <button class="modal-close" onclick="app.closeModal()">&times;</button>
-                <h2>🆘 Immediate Support</h2>
+                <button class="modal-close" onclick="app.closeModal()" aria-label="Close crisis support modal dialog">&times;</button>
+                <h2 id="crisis-title">🆘 Immediate Support</h2>
                 <p>If you're in crisis or having thoughts of self-harm, please reach out immediately:</p>
                 <div class="crisis-resources">
                     <div class="resource-card">

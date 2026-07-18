@@ -296,6 +296,29 @@ const app = {
             return;
         }
 
+        // Safety check: local crisis detection
+        if (this.checkForCrisis(message)) {
+            // Show user message in chat
+            this.addMessageToChat(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Instantly open the emergency crisis modal
+            this.showEmergencySupport();
+            
+            // Output local compassionate warning and helpline suggestions
+            this.addMessageToChat(
+                '❤️ **I am deeply concerned about you.** It sounds like you are going through an incredibly difficult time. Please know that you are not alone, and there is help available.\n\n' +
+                'I have automatically opened our immediate crisis support options. Please reach out to one of the following 24/7 resources right now:\n\n' +
+                '- **National Suicide Prevention Lifeline**: Call or text **988** or call **1-800-273-8255** (Free, confidential, available 24/7)\n' +
+                '- **Crisis Text Line**: Text **HOME** to **741741** to text with a trained crisis counselor\n' +
+                '- **SAMHSA National Helpline**: Call **1-800-662-4357**\n\n' +
+                'Please connect with a professional or a trusted person in your life right now. Your immediate physical safety and well-being are the absolute top priority.',
+                'bot'
+            );
+            return;
+        }
+
         // Disable input
         input.disabled = true;
         document.getElementById('send-btn').disabled = true;
@@ -377,32 +400,24 @@ const app = {
     },
 
     async getAIResponse(userMessage) {
-        const systemPrompt = `You are a compassionate AI coach specializing in helping people reduce and overcome harmful habits. Your expertise covers:
+        const systemPrompt = `You are an empathetic, highly trained AI Agent specialized in Cognitive Behavioral Therapy (CBT) and Behavioral Psychology. Your primary purpose is to help users break bad habits and overcome addictions (screen time, substance dependency, compulsive actions, and sleep or eating routines).
 
-- Excessive screen time & digital addiction
-- Substance abuse & dependency
-- Compulsive behaviors & impulse control
-- Sleep disruption & unhealthy routines
-- Eating disorders & food addiction
-- Smoking & nicotine addiction
-- Alcohol dependency
-- Gambling & behavioral addictions
-
-CORE APPROACH:
-- Empathetic & non-judgmental tone
-- Validate emotions and experiences first
-- Use evidence-based CBT techniques
-- Provide practical, actionable strategies
-- Small, manageable steps for success
-- Focus on habit patterns and triggers
-- Build motivation and self-compassion
+KEY CBT PRINCIPLES YOU EMBODY:
+1. **Empathy First**: Always acknowledge the user's feelings and validate their experience first.
+2. **Non-Judgmental & Supportive**: Never shame or judge. Foster motivation, self-efficacy, and compassionate self-monitoring.
+3. **Evidence-Based CBT Techniques**: 
+   - **Cognitive Restructuring**: Help identify and challenge unhelpful thought patterns (automatic thoughts, catastrophizing).
+   - **Behavioral Activation**: Encourage scheduling positive, healthy alternatives.
+   - **Habit Loop Analysis**: Examine Cue → Routine → Reward cycles.
+   - **Thought Records**: Guide users in examining evidence for/against negative thoughts.
+4. **Actionable & Small Wins**: Guide them through small, manageable, practical steps.
 
 RESPONSE FORMAT:
-- Use clear paragraphs and bullet points
-- Avoid excessive formatting
-- Include specific strategies users can try today
-- Summarize key insights at the end
-- Keep it focused and conversational
+- Start with validation and empathy.
+- Provide specific CBT insights.
+- Offer 2-3 highly actionable strategies.
+- Summarize key insights concisely at the end.
+- Use clear paragraphs and simple bullet points (avoid heavy formatting).
 
 DYNAMIC FOLLOWUPS:
 At the absolute end of your response, you MUST provide exactly 3 dynamic, context-aware followup suggestions (prompts) for the user to select next. Keep them short, casual, action-oriented, and empathetic (under 8 words each).
@@ -482,6 +497,23 @@ Your goal is to help users understand their habits, identify triggers, and build
             console.error('Google Generative AI error:', error);
             throw error;
         }
+    },
+
+    checkForCrisis(message) {
+        const crisisIndicators = [
+            'suicide',
+            'kill myself',
+            'no point',
+            'worthless',
+            'can\'t take it',
+            'want to die',
+            'harm myself',
+            'self-harm',
+            'overdose',
+            'kill me'
+        ];
+        const lower = message.toLowerCase();
+        return crisisIndicators.some(indicator => lower.includes(indicator));
     },
 
     extractHabitInfo(userMessage) {
@@ -573,25 +605,37 @@ Your goal is to help users understand their habits, identify triggers, and build
     },
 
     parseMessageContent(text) {
-        // Convert to clean HTML without excessive markdown
-        let html = text
-            // Remove ** but keep bold styling
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            // Remove single * 
-            .replace(/\*(.*?)\*/g, '$1')
-            // Convert line breaks
-            .replace(/\n\n/g, '</p><p>')
-            .replace(/\n/g, '<br>')
-            // Format bullet points
-            .replace(/^[-•]\s+/gm, '<li>')
-            .replace(/<li>/g, '<li style="margin-left: 20px; margin-bottom: 8px;">')
-            // Wrap in paragraphs if not already
-            .replace(/^(?!<li|<p|<strong)/gm, '<p>')
-            .replace(/(?<!<\/p>)$/gm, '</p>')
-            .replace(/<p><\/p>/g, '')
-            .trim();
+        if (!text) return '';
+        
+        // 1. Escape HTML special characters to prevent XSS injections
+        let escaped = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
 
-        return html;
+        // 2. Parse Markdown Bold (e.g. **text**)
+        let formatted = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // 3. Parse Markdown Italic (e.g. *text*)
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+        // 4. Convert line breaks (double linebreaks -> paragraphs, single -> <br>)
+        formatted = formatted.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+
+        // 5. Parse Markdown Lists
+        formatted = formatted.replace(/^[-•]\s+(.*)$/gm, '<li style="margin-left: 20px; margin-bottom: 8px;">$1</li>');
+
+        // 6. Wrap plain paragraphs if they don't start with list items or paragraphs
+        if (!formatted.startsWith('<p>') && !formatted.startsWith('<li')) {
+            formatted = '<p>' + formatted + '</p>';
+        }
+
+        // Clean up empty tags
+        formatted = formatted.replace(/<p><\/p>/g, '').trim();
+
+        return formatted;
     },
 
     updateCurrentHabit(habit) {
