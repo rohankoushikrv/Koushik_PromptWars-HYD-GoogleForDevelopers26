@@ -250,9 +250,13 @@ const app = {
             // Hide loading indicator
             this.showLoading(false);
 
-            // Add AI response to chat
+            // Add AI response to chat with streaming animation
             if (aiResponse) {
-                this.addMessageToChat(aiResponse, 'bot');
+                const chatHistory = document.getElementById('chat-history');
+                const contentDiv = this.addMessageToChat(aiResponse, 'bot', true, true);
+                
+                // Stream the response
+                await this.streamMessage(aiResponse, contentDiv, chatHistory);
 
                 // Add to conversation history
                 this.conversationHistory.push({
@@ -287,16 +291,34 @@ const app = {
     },
 
     async getAIResponse(userMessage) {
-        const systemPrompt = `You are an empathetic, highly trained AI Agent specialized in Cognitive Behavioral Therapy (CBT) and Behavioral Psychology. Your primary purpose is to help users break bad habits and overcome addictions.
+        const systemPrompt = `You are a compassionate AI coach specializing in helping people reduce and overcome harmful habits. Your expertise covers:
 
-KEY PRINCIPLES:
-1. **Empathy First**: Always acknowledge the user's feelings and validate their experience
-2. **Non-Judgmental**: Never shame or judge. Focus on understanding and growth
-3. **Evidence-Based**: Use CBT techniques grounded in psychology
-4. **Safety-Conscious**: Identify crisis indicators and escalate appropriately
-5. **Practical**: Provide actionable strategies users can implement immediately
+- Excessive screen time & digital addiction
+- Substance abuse & dependency
+- Compulsive behaviors & impulse control
+- Sleep disruption & unhealthy routines
+- Eating disorders & food addiction
+- Smoking & nicotine addiction
+- Alcohol dependency
+- Gambling & behavioral addictions
 
-Provide compassionate, practical responses using CBT principles. Keep responses focused and actionable.`;
+CORE APPROACH:
+- Empathetic & non-judgmental tone
+- Validate emotions and experiences first
+- Use evidence-based CBT techniques
+- Provide practical, actionable strategies
+- Small, manageable steps for success
+- Focus on habit patterns and triggers
+- Build motivation and self-compassion
+
+RESPONSE FORMAT:
+- Use clear paragraphs and bullet points
+- Avoid excessive formatting
+- Include specific strategies users can try today
+- Summarize key insights at the end
+- Keep it focused and conversational
+
+Your goal is to help users understand their habits, identify triggers, and build healthier patterns step by step.`;
 
         try {
             // Build the full conversation history with system prompt
@@ -401,14 +423,21 @@ Provide compassionate, practical responses using CBT principles. Keep responses 
 
     /* ========== UI UPDATES ========== */
 
-    addMessageToChat(text, sender, scroll = true) {
+    addMessageToChat(text, sender, scroll = true, isStreaming = false) {
         const chatHistory = document.getElementById('chat-history');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}-message`;
+        messageDiv.id = `msg-${Date.now()}`;
 
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.innerHTML = this.parseMessageContent(text);
+        
+        if (sender === 'bot' && isStreaming) {
+            contentDiv.classList.add('streaming');
+            contentDiv.innerHTML = '';
+        } else {
+            contentDiv.innerHTML = this.parseMessageContent(text);
+        }
 
         const timeSpan = document.createElement('span');
         timeSpan.className = 'message-time';
@@ -425,14 +454,51 @@ Provide compassionate, practical responses using CBT principles. Keep responses 
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             }, 0);
         }
+
+        return contentDiv;
+    },
+
+    async streamMessage(text, contentDiv, chatHistory) {
+        // Remove streaming class after animation completes
+        const words = text.split(' ');
+        let displayText = '';
+
+        for (let i = 0; i < words.length; i++) {
+            displayText += (i > 0 ? ' ' : '') + words[i];
+            contentDiv.innerHTML = this.parseMessageContent(displayText) + '<span class="typing-cursor"></span>';
+            
+            // Auto-scroll
+            setTimeout(() => {
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }, 0);
+
+            // Slight delay for natural typing feel
+            await new Promise(resolve => setTimeout(resolve, 30));
+        }
+
+        // Remove cursor when done
+        contentDiv.innerHTML = this.parseMessageContent(displayText);
+        contentDiv.classList.remove('streaming');
     },
 
     parseMessageContent(text) {
-        // Convert markdown-like formatting to HTML
+        // Convert to clean HTML without excessive markdown
         let html = text
+            // Remove ** but keep bold styling
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/\n/g, '<br>');
+            // Remove single * 
+            .replace(/\*(.*?)\*/g, '$1')
+            // Convert line breaks
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            // Format bullet points
+            .replace(/^[-•]\s+/gm, '<li>')
+            .replace(/<li>/g, '<li style="margin-left: 20px; margin-bottom: 8px;">')
+            // Wrap in paragraphs if not already
+            .replace(/^(?!<li|<p|<strong)/gm, '<p>')
+            .replace(/(?<!<\/p>)$/gm, '</p>')
+            .replace(/<p><\/p>/g, '')
+            .trim();
 
         return html;
     },
