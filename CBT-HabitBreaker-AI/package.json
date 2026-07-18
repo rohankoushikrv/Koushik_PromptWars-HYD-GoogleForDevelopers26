@@ -1,0 +1,28 @@
+{
+  "name": "cbt-habit-breaker-ai",
+  "version": "1.0.0",
+  "description": "A highly secure, empathetic AI Agent specialized in Behavioral Psychology and CBT for breaking bad habits and overcoming addictions - Deployable to GitHub Pages",
+  "type": "module",
+  "homepage": "https://yourusername.github.io/cbt-habit-breaker-ai",
+  "scripts": {
+    "start": "python -m http.server 3000",
+    "dev": "python -m http.server 3000",
+    "build": "echo 'Static webapp - no build needed'",
+    "deploy": "npm run build && gh-pages -d ."
+  },
+  "keywords": [
+    "CBT",
+    "behavioral-psychology",
+    "habit-breaking",
+    "addiction-recovery",
+    "AI-agent",
+    "mental-health",
+    "github-pages"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "gh-pages": "^6.1.0"
+  }
+}

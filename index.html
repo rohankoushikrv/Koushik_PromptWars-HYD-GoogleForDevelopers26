@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartChef - Secure Budget-Aware AI Meal Planner</title>
+    <meta name="description" content="Generate optimized, budget-aware cooking to-do lists based on daily schedule, dietary preferences, and financial constraints. Secure, sandboxed, and fast.">
+    <link rel="stylesheet" href="styles.css">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="brand-section">
+                <i class="fa-solid fa-shrimp logo-icon"></i>
+                <div>
+                    <h1 class="brand-name">SmartChef</h1>
+                    <p class="brand-tagline">AI-Powered, Budget-Aware Cooking Dashboard</p>
+                </div>
+            </div>
+            <button class="settings-btn" id="openSettingsBtn">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Configure API</span>
+            </button>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Panel: Inputs -->
+            <section class="glass-panel input-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
+                    <h2>Parameters</h2>
+                </div>
+
+                <!-- Mode Selectors -->
+                <div class="toggle-container">
+                    <button class="toggle-btn active" id="sandboxModeBtn">
+                        <i class="fa-solid fa-flask"></i> Sandbox Mode
+                    </button>
+                    <button class="toggle-btn" id="apiModeBtn">
+                        <i class="fa-solid fa-bolt"></i> Live Gemini
+                    </button>
+                </div>
+
+                <!-- Preset Configurations -->
+                <div class="form-group">
+                    <label>Presets / Quick Load</label>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem;">
+                        <button class="settings-btn" id="loadPreset1" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">
+                            <i class="fa-solid fa-seedling" style="color: var(--success);"></i> Vegetarian Preset
+                        </button>
+                        <button class="settings-btn" id="loadPreset2" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 8px;">
+                            <i class="fa-solid fa-clock" style="color: var(--secondary);"></i> Busy Schedule
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Daily Schedule Input -->
+                <div class="form-group">
+                    <label for="scheduleInput">Daily Schedule</label>
+                    <div class="input-glow-wrapper">
+                        <textarea id="scheduleInput" class="form-textarea" placeholder="e.g., 9 AM to 6 PM back-to-back meetings, gym at 7 PM" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Dietary Preferences / Allergens -->
+                <div class="form-group">
+                    <label for="preferencesInput">Diet & Preferences (Allergens)</label>
+                    <div class="input-glow-wrapper">
+                        <input type="text" id="preferencesInput" class="form-input" placeholder="e.g., Vegetarian, high-protein, avoids peanuts" required>
+                    </div>
+                </div>
+
+                <!-- Daily Budget -->
+                <div class="form-group">
+                    <label for="budgetsInput">Daily Budget ($ USD)</label>
+                    <div class="input-glow-wrapper">
+                        <input type="number" id="budgetsInput" class="form-input" placeholder="e.g., 15" min="1" step="0.5" value="15" required>
+                    </div>
+                </div>
+
+                <!-- Current Pantry -->
+                <div class="form-group">
+                    <label for="pantryInput">Current Pantry Staples</label>
+                    <div class="input-glow-wrapper">
+                        <textarea id="pantryInput" class="form-textarea" placeholder="e.g., Rice, olive oil, salt, black pepper" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Run Button -->
+                <button class="btn-primary" id="generateBtn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Optimize Meal Plan</span>
+                </button>
+            </section>
+
+            <!-- Right Panel: Output Dashboard -->
+            <section class="glass-panel output-section" id="outputSection">
+                
+                <!-- Initial State (Placeholder) -->
+                <div class="placeholder-state" id="placeholderState">
+                    <i class="fa-solid fa-kitchen-set placeholder-icon"></i>
+                    <h3 class="placeholder-title">Ready for Ingredients Optimization</h3>
+                    <p style="max-width: 400px; margin: 0 auto;">Input your daily parameters on the left side, configure your API or use the Sandbox mode, and hit "Optimize Meal Plan".</p>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-ring-container" id="loadingState" style="display: none;">
+                    <div class="loading-ring"></div>
+                    <div>
+                        <h3 style="font-weight: 700; margin-bottom: 0.25rem;">Processing Parameters Securely</h3>
+                        <p id="loadingStatusText" style="color: var(--text-secondary); font-size: 0.9rem;">Sanitizing inputs...</p>
+                    </div>
+                </div>
+
+                <!-- Output Dashboard Content (Shown after generation) -->
+                <div id="dashboardContent" style="display: none; display: flex; flex-direction: column; gap: 2rem;">
+                    
+                    <!-- Top Metrics: Feasibility Overview -->
+                    <div class="metrics-grid">
+                        <!-- Cost Feasibility -->
+                        <div class="metric-card" id="costFeasibilityCard">
+                            <span class="metric-label">Budget Feasibility</span>
+                            <div class="metric-value" id="costFeasibilityVal">-</div>
+                            <span class="metric-desc" id="costFeasibilityDesc">-</span>
+                        </div>
+                        
+                        <!-- Estimated Cost -->
+                        <div class="metric-card neutral">
+                            <span class="metric-label">Estimated Cost</span>
+                            <div class="metric-value" id="estimatedCostVal">$0.00</div>
+                            <span class="metric-desc" id="estimatedCostDesc">Out of budget constraint</span>
+                        </div>
+                        
+                        <!-- Time Feasibility -->
+                        <div class="metric-card" id="timeFeasibilityCard">
+                            <span class="metric-label">Time Constraints</span>
+                            <div class="metric-value" id="timeFeasibilityVal">-</div>
+                            <span class="metric-desc" id="timeFeasibilityDesc">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Meal Plan -->
+                    <div class="meal-plan-container">
+                        <div class="section-title">
+                            <i class="fa-solid fa-utensils" style="color: var(--primary);"></i>
+                            <h3>Personalized Daily Recipes</h3>
+                        </div>
+                        <div class="meal-cards-grid">
+                            <!-- Breakfast -->
+                            <div class="meal-card">
+                                <div class="meal-header">
+                                    <span class="meal-tag">Breakfast</span>
+                                    <span class="meal-time" id="breakfastTime"><i class="fa-regular fa-clock"></i> -</span>
+                                </div>
+                                <h4 class="meal-name" id="breakfastName">Recipe Name</h4>
+                                <ul class="meal-instructions" id="breakfastInstructions">
+                                    <!-- Dynamic list -->
+                                </ul>
+                            </div>
+                            <!-- Lunch -->
+                            <div class="meal-card">
+                                <div class="meal-header">
+                                    <span class="meal-tag">Lunch</span>
+                                    <span class="meal-time" id="lunchTime"><i class="fa-regular fa-clock"></i> -</span>
+                                </div>
+                                <h4 class="meal-name" id="lunchName">Recipe Name</h4>
+                                <ul class="meal-instructions" id="lunchInstructions">
+                                    <!-- Dynamic list -->
+                                </ul>
+                            </div>
+                            <!-- Dinner -->
+                            <div class="meal-card">
+                                <div class="meal-header">
+                                    <span class="meal-tag">Dinner</span>
+                                    <span class="meal-time" id="dinnerTime"><i class="fa-regular fa-clock"></i> -</span>
+                                </div>
+                                <h4 class="meal-name" id="dinnerName">Recipe Name</h4>
+                                <ul class="meal-instructions" id="dinnerInstructions">
+                                    <!-- Dynamic list -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Details: Grocery List & Substitutions -->
+                    <div class="detail-grid">
+                        
+                        <!-- Grocery Checklist -->
+                        <div class="grocery-card">
+                            <div class="section-title" style="margin-bottom: 1.25rem;">
+                                <i class="fa-solid fa-basket-shopping" style="color: var(--secondary);"></i>
+                                <h3>Grocery Checklist</h3>
+                            </div>
+                            <div class="grocery-list" id="groceryListContainer">
+                                <!-- Dynamic grocery items -->
+                            </div>
+                        </div>
+
+                        <!-- Substitutions Table -->
+                        <div class="subs-card">
+                            <div class="section-title" style="margin-bottom: 1.25rem;">
+                                <i class="fa-solid fa-arrows-rotate" style="color: var(--warning);"></i>
+                                <h3>Smart Substitutions</h3>
+                            </div>
+                            <div class="subs-table-container">
+                                <table class="subs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Original Needed</th>
+                                            <th>Alternative</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="subsTableBody">
+                                        <!-- Dynamic substitutions -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JSON View Drawer -->
+                    <div class="json-view-container">
+                        <div class="json-view-header">
+                            <span class="json-view-title"><i class="fa-solid fa-code"></i> Secure Engine Output JSON</span>
+                            <button class="copy-btn" id="copyJsonBtn"><i class="fa-regular fa-copy"></i> Copy JSON</button>
+                        </div>
+                        <pre class="json-output" id="jsonOutputView">
+                        </pre>
+                    </div>
+
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-gears" style="color: var(--primary);"></i> API Configurations</h3>
+                <button class="modal-close" id="closeSettingsBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Configure your Gemini API settings below. The key is stored securely in your browser's local storage and is never sent to any third-party server besides Google's official Gemini endpoint.</p>
+                
+                <div class="form-group">
+                    <label for="apiKeyInput">Gemini API Key</label>
+                    <div class="input-glow-wrapper">
+                        <input type="password" id="apiKeyInput" class="form-input" placeholder="AIzaSy...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="apiModelInput">Model Version</label>
+                    <div class="input-glow-wrapper">
+                        <select id="apiModelInput" class="form-input" style="background: #111827;">
+                            <option value="gemini-3.5-flash">gemini-3.5-flash (Recommended)</option>
+                            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                            <option value="gemini-flash-latest">gemini-flash-latest</option>
+                            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="saveSettingsBtn" style="margin-top: 1rem;">
+                    <i class="fa-solid fa-circle-check"></i> Save Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=1.0.5"></script>
+</body>
+</html>
